@@ -1,19 +1,79 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b1020">
-<meta name="description" content="TapLock is a hardware authorization prototype that pairs an ESP32 physical confirmation device with short-lived action challenges, an audit dashboard, and planned NEAR on-chain signature verification.">
-<title>TapLock | Hardware Authorization for NEAR</title><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#070b0a">
+<meta name="description" content="TapLock is a physical authorization prototype for sensitive actions in NEAR and autonomous agent workflows.">
+<title>TapLock — Physical authorization for NEAR</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-<div class="shell">
-<aside class="sidebar"><a class="brand" href="/"><span class="brand-mark">T</span><span>taplock<small>HARDWARE AUTHORIZATION</small></span></a><div class="nav-label">WORKSPACE</div><a class="nav active" href="#overview">◈ <span>Overview</span></a><a class="nav" href="#actions">▤ <span>Action queue</span></a><a class="nav" href="#audit">◷ <span>Audit trail</span></a><div class="sidebar-bottom"><span class="status-dot"></span><span>Prototype environment</span><div class="version">BUILD 0.2.0 · NEAR HACKATHON</div></div></aside>
-<main class="main"><header><div><div class="eyebrow">SECURITY WORKSPACE / OVERVIEW</div><h1>Authorization console</h1><p class="sub">Sensitive actions should never execute on software intent alone.</p></div><button id="reset" class="button secondary">Reset demo ↻</button></header>
-<section class="hero"><div class="hero-copy"><div class="eyebrow light">THE TAPLOCK PRINCIPLE</div><h2>Make digital actions<br>wait for physical intent.</h2><p>TapLock pairs a web action queue with an ESP32 hardware confirmation device. Review each request, create a short-lived challenge, then confirm using the board's onboard BOOT button. This prototype records physical input only; cryptographic signing and on-chain authorization are not yet connected.</p><div class="hero-tags"><span>ESP32 · onboard BOOT</span><span>Challenge expiry · 60s</span><span>NEAR contract concept</span></div></div><div class="hero-visual"><div class="orbit orbit-a"></div><div class="orbit orbit-b"></div><div class="shield">⌑</div><div class="orbit-label">HUMAN<br>IN THE LOOP</div></div></section>
-<div class="stats"><article class="stat"><span>AVAILABLE ACTIONS</span><strong id="stat-actions">—</strong><small>Requests in queue</small></article><article class="stat"><span>CHALLENGES CREATED</span><strong id="stat-challenges">—</strong><small>Session audit events</small></article><article class="stat"><span>EXECUTION STATUS</span><strong class="text-safe">DISABLED</strong><small>Prototype only, no funds moved</small></article></div>
-<section id="actions" class="panel"><div class="panel-head"><div><div class="eyebrow">REVIEW BEFORE YOU AUTHORIZE</div><h2>Action queue</h2></div><span class="pill">DEMO DATA</span></div><div id="action-list" class="action-list"><div class="loading">Loading action queue…</div></div></section>
-<section class="panel" id="audit"><div class="panel-head"><div><div class="eyebrow">TRACEABLE BY DESIGN</div><h2>Recent audit events</h2></div><span class="muted">Latest 100 events</span></div><div id="audit-list" class="audit-list"><div class="loading">Loading audit events…</div></div></section>
-<footer><span>TapLock · Prototype 0.2.0</span><span>Physical input is not cryptographic authorization.</span></footer>
-</main></div><div id="toast" class="toast" role="status" aria-live="polite"></div><script src="/app.js" defer></script>
-</body></html>
+<div class="app-shell">
+<aside class="sidebar">
+  <a class="brand" href="/" aria-label="TapLock home">
+    <span class="brand-mark"><span></span><span></span></span>
+    <span class="brand-copy">taplock<small>PHYSICAL AUTHORIZATION</small></span>
+  </a>
+  <div class="workspace-label">WORKSPACE</div>
+  <nav class="navigation" aria-label="Main navigation">
+    <a class="nav-link active" href="#overview"><span class="nav-icon">◈</span> Overview</a>
+    <a class="nav-link" href="#actions"><span class="nav-icon">↗</span> Action queue</a>
+    <a class="nav-link" href="#audit"><span class="nav-icon">≋</span> Audit trail</a>
+  </nav>
+  <div class="sidebar-spacer"></div>
+  <div class="network-card">
+    <span class="network-symbol">N</span>
+    <div><strong>NEAR ecosystem</strong><small>Prototype integration</small></div>
+    <span class="status-dot"></span>
+  </div>
+  <div class="sidebar-foot"><span class="live-dot"></span> Local prototype <span class="build-tag">BUILD 0.3</span></div>
+</aside>
+<main class="main-content" id="overview">
+  <header class="topbar">
+    <div>
+      <div class="eyebrow"><span class="eyebrow-dot"></span> SECURITY CONSOLE <span class="eyebrow-divider">/</span> OVERVIEW</div>
+      <h1>Authorization center</h1>
+      <p class="page-subtitle">Sensitive actions deserve a physical checkpoint.</p>
+    </div>
+    <div class="topbar-actions"><span class="environment-pill"><span class="live-dot"></span> DEMO ENVIRONMENT</span><button id="reset" class="button secondary">Reset demo <span aria-hidden="true">↻</span></button></div>
+  </header>
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-kicker"><span class="kicker-line"></span> A HUMAN CHECKPOINT FOR AUTONOMOUS ACTIONS</div>
+      <h2>Software can request.<br><span>You decide.</span></h2>
+      <p>TapLock puts a physical confirmation step between an automated request and a sensitive action. Review the request, create a short-lived challenge, then confirm with the onboard BOOT button on your ESP32.</p>
+      <div class="hero-actions"><a class="hero-link" href="#actions">Review action queue <span>↘</span></a><span class="hero-note"><span class="live-dot"></span> ESP32 bridge prototype</span></div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="art-ring ring-outer"></div><div class="art-ring ring-inner"></div>
+      <div class="art-core"><div class="core-lock"><span></span></div><div class="core-caption">PHYSICAL<br>INTENT</div></div>
+      <span class="art-node node-top"></span><span class="art-node node-bottom"></span>
+      <div class="art-label">TAPLOCK <span>×</span> NEAR</div>
+    </div>
+    <div class="hero-bottom"><span>DESIGNED FOR HUMAN-IN-THE-LOOP SECURITY</span><span>01 — PHYSICAL CONFIRMATION</span></div>
+  </section>
+  <section class="metrics" aria-label="Prototype metrics">
+    <article class="metric-card"><div class="metric-top"><span>OPEN REQUESTS</span><span class="metric-icon">↗</span></div><strong id="stat-actions">—</strong><small>Waiting for review</small></article>
+    <article class="metric-card"><div class="metric-top"><span>CHALLENGES CREATED</span><span class="metric-icon">⌁</span></div><strong id="stat-challenges">—</strong><small>Recorded in this session</small></article>
+    <article class="metric-card"><div class="metric-top"><span>TRANSACTION EXECUTION</span><span class="metric-status">OFF</span></div><strong class="metric-disabled">Disabled</strong><small>No on-chain transaction is executed</small></article>
+  </section>
+  <section id="actions" class="panel">
+    <div class="section-heading"><div><div class="eyebrow">01 <span class="eyebrow-divider">/</span> REVIEW &amp; AUTHORIZE</div><h2>Action queue</h2><p>Inspect each request before creating a physical challenge.</p></div><span class="section-chip">DEMO REQUESTS</span></div>
+    <div id="action-list" class="action-list"><div class="loading">Loading action queue…</div></div>
+  </section>
+  <section id="audit" class="panel audit-panel">
+    <div class="section-heading"><div><div class="eyebrow">02 <span class="eyebrow-divider">/</span> SYSTEM ACTIVITY</div><h2>Audit trail</h2><p>A local record of challenge and device events.</p></div><span class="muted">LATEST EVENTS</span></div>
+    <div id="audit-list" class="audit-list"><div class="loading">Loading audit events…</div></div>
+  </section>
+  <footer><span><strong>TAPLOCK</strong> <span class="footer-separator">/</span> NEAR HACKATHON PROTOTYPE</span><span>Physical input is not yet cryptographic authorization.</span></footer>
+</main>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script src="/app.js" defer></script>
+</body>
+</html>
