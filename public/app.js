@@ -47,7 +47,7 @@ actionList.addEventListener("click", async (event) => {
   try {
     const challenge = await api("/api/challenges", {method:"POST", body:JSON.stringify({actionId:button.dataset.challenge})});
     currentChallenge = challenge;
-    const physical = confirm("Challenge created for 60 seconds.\n\nChoose OK to wait for the connected ESP32. Once it polls the API, connect GPIO27 to GND to record a physical-input event.\n\nChoose Cancel to run the browser demo simulation instead.");
+    const physical = confirm("Challenge created for 60 seconds.\n\nChoose OK to wait for the connected ESP32. Once it polls the API, briefly press the onboard BOOT button to record a physical-input event.\n\nChoose Cancel to run the browser demo simulation instead.");
     if (physical) {
       notify("Challenge created. Waiting for ESP32 input. Check the device Serial Monitor.");
     } else {
