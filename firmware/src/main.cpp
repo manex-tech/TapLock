@@ -37,19 +37,30 @@ void pollChallenge() {
   if (code == HTTP_CODE_OK) {
     JsonDocument doc;
     const DeserializationError error = deserializeJson(doc, http.getString());
-    if (!error && !doc["challenge"].isNull()) {
+    if (error) {
+      Serial.printf("Could not parse challenge response: %s\n", error.c_str());
+    } else if (doc["challenge"].isNull()) {
+      if (challengeActive) {
+        Serial.println("No pending challenge returned. Clearing local challenge state.");
+        challengeActive = false;
+        activeChallengeId = "";
+        activeActionTitle = "";
+      }
+    } else {
       String id = doc["challenge"]["id"] | "";
       if (id.length() && id != activeChallengeId) {
         activeChallengeId = id;
         activeActionTitle = doc["challenge"]["action"]["title"] | "Unknown action";
         challengeActive = true;
         Serial.println();
-        Serial.println("=== TAPLOCK CHALLENGE AVAILABLE ===");
+        Serial.println("========== TAPLOCK CHALLENGE ==========");
+        Serial.printf("Device: %s\n", DEVICE_ID);
         Serial.printf("Challenge: %s\n", activeChallengeId.c_str());
         Serial.printf("Action: %s\n", activeActionTitle.c_str());
-        Serial.println("Review the full action in the dashboard before confirming.");
-        Serial.println("Press the onboard BOOT button briefly to record a physical input.");
-        Serial.println("Prototype only: this input is not a cryptographic signature or NEAR transaction.");
+        Serial.println("Review the full request in the dashboard.");
+        Serial.println("Briefly press onboard BOOT to record physical input.");
+        Serial.println("Physical input only. No signature or NEAR transaction is produced.");
+        Serial.println("=======================================");
       }
     }
   } else if (code < 0) {
@@ -91,7 +102,7 @@ void setup() {
   pinMode(TAPLOCK_INPUT_PIN, INPUT_PULLUP);
   delay(150);
   Serial.println();
-  Serial.println("TapLock ESP32 hardware-key prototype");
+  Serial.println("TapLock ESP32 bridge — firmware 0.3");
   Serial.printf("Confirmation input GPIO%d (onboard BOOT button on many ESP32 DevKit boards).\n", TAPLOCK_INPUT_PIN);
   Serial.println("Press BOOT only after startup; do not hold it while resetting or powering on.");
   Serial.println("Connecting to Wi-Fi...");
@@ -109,7 +120,7 @@ void setup() {
   } else {
     Serial.println("Wi-Fi connection timed out. Check secrets.h and reboot.");
   }
-  Serial.println("Security boundary: this firmware records a physical input; signed device authorization is not implemented yet.");
+  Serial.println("Security boundary: physical input only; Ed25519 signing is not implemented.");
 }
 
 void loop() {
