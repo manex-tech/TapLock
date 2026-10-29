@@ -1,74 +1,79 @@
 # TapLock
 
-**Physical authorization for high-risk digital actions.**
+**A hardware-backed authorization prototype for NEAR and sensitive digital actions.**
 
-TapLock explores a simple security primitive: an online request can prepare a sensitive action, but a separate physical interaction with an ESP32 must authorize it. A physical button confirms intent; it is not a trusted display and cannot, by itself, prove which transaction the user saw.
+TapLock explores a simple security principle: an online request can prepare a sensitive action, but a separate physical device must confirm intent before the application proceeds. The prototype combines an ESP32-WROOM-32, a web authorization console, a local Node.js API, short-lived challenges, an audit trail, and a NEAR smart-contract verification concept.
 
-## Project status
+> **Current status:** the dashboard and Wi-Fi-connected ESP32 input bridge are implemented. The current firmware records a physical button event; it does not yet create an Ed25519 signature or submit a NEAR contract call. The contract source has not been compiled, deployed, or audited. No real transaction is executed. Do not use this prototype to protect real funds.
 
-This repository is the public home for the TapLock NEAR Hackathon prototype. The initial MVP focuses on an ESP32-WROOM-32, a GPIO input, a web dashboard, and a local API for challenge/approval demonstrations.
+## Why TapLock?
 
-**Security note:** the demo API is not production-grade authorization. It does not yet provide cryptographic device identity, signed approvals, durable audit storage, or on-chain execution. Do not use it to protect real funds or accounts.
+Software-only approval can be abused by malicious scripts, compromised sessions, or automated agents. TapLock separates the request from a physical confirmation step. The intended next stage is to bind device signatures to a specific action digest, nonce, expiry, and NEAR network, then verify the signature on-chain.
+
+## Features in this prototype
+
+- Responsive dark authorization dashboard with demo actions and risk labels.
+- Short-lived, single-use API challenges.
+- ESP32 Wi-Fi polling and authenticated input events.
+- Onboard BOOT button as the no-jumper confirmation input on compatible ESP32 DevKit boards.
+- Recent audit events and replay/expiry checks in the demo API.
+- NEAR Rust contract source for device-key registration and Ed25519 signature verification.
+- Explicit prototype boundary: demo approval is not cryptographic authorization and does not execute transactions.
 
 ## Hardware
 
-- ESP32-WROOM-32 development board
-- One jumper wire from GPIO27 to GND for a temporary input test
-- Firmware uses `INPUT_PULLUP`; the input is active-low
+- ESP32-WROOM-32 development board with an onboard BOOT button connected to GPIO0 (common on ESP32 DevKit boards).
+- Computer and ESP32 on the same Wi-Fi network for local development.
+- No display module or external tactile button is required for this button-input prototype.
 
-No display or tactile push button is assumed. A jumper-to-GND can be used for a controlled bench test, but it is not a finished user interface.
+**Board variation warning:** confirm your specific board's BOOT button is wired to GPIO0. Press it only after startup. Holding BOOT during reset or power-up can put many ESP32 boards into download mode. If your board does not expose BOOT on GPIO0, adjust `TAPLOCK_INPUT_PIN` and the PlatformIO build flag to match its schematic.
 
-## Run locally
+## Run the dashboard
 
 Requirements: Node.js 20 or newer.
 
 ```bash
 npm install
+npm test
 npm start
 ```
 
 Open http://localhost:3000.
 
-Run tests:
+## Connect the ESP32
 
-```bash
-npm test
-```
+1. Copy `firmware/include/secrets.example.h` to `firmware/include/secrets.h`.
+2. Set your Wi-Fi SSID and password.
+3. Set `TAPLOCK_API_BASE` to the computer's LAN IP, such as `http://192.168.1.105:3000`. Do not use `localhost` in firmware.
+4. Set `TAPLOCK_DEVICE_TOKEN` to the same long random value configured in the server environment.
+5. Open `firmware/` in VS Code with PlatformIO, build, and upload.
+6. Open Serial Monitor at 115200 baud.
+7. Create a challenge in the dashboard and choose to wait for the ESP32.
+8. When the Serial Monitor prints the pending challenge, review the action in the dashboard and briefly press the onboard BOOT button.
 
-## Firmware
+If the API reports 401, the server's `TAPLOCK_DEVICE_TOKEN` is missing or does not match the firmware token. Keep the server terminal running. Ensure Windows Firewall allows the local Node server to accept connections from your network.
 
-Open `firmware/` in VS Code with PlatformIO. Select the ESP32 Dev Module environment, build, and flash the board. Configure the API endpoint for your network before attempting device-to-server communication.
+## NEAR contract status
+
+The Rust source under `contract/` is intended to register Ed25519 public keys, validate signed challenge fields, enforce expiry, prevent challenge/nonce reuse, and record an on-chain receipt. It is **not yet connected end-to-end** to the ESP32. The firmware does not yet generate signatures, securely provision a device key, or submit a NEAR transaction. Contract compilation, unit tests, testnet deployment, and end-to-end signature verification remain required milestones.
+
+## Security limitations
+
+- The current shared device token is a transport gate, not cryptographic device identity.
+- The firmware currently submits a physical-input event, not a signed authorization.
+- The dashboard is not a trusted display. A button press alone does not prove the user reviewed the exact transaction details.
+- The server stores demo state in memory; audit events are not durable.
+- ESP32-WROOM-32 is not equivalent to a dedicated tamper-resistant security element.
+- Do not connect this prototype to real wallets or production credentials.
 
 ## Deployment
 
-See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md). A Render Blueprint is included in `render.yaml`. The hosted demo should be treated as a prototype until device authentication and production security controls are implemented.
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) and [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md).
 
-## Security model
+## Hackathon
 
-See [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md). TapLock distinguishes physical confirmation from a trusted display: without a trusted display, a button press cannot establish that the user reviewed the exact action details.
-
-## NEAR Hackathon
-
-Built for the NEAR Hackathon, November 1–14, 2026. The next integration milestone is a narrowly scoped, verifiable authorization flow that can gate a NEAR-related action without exposing private keys to the web application.
+Built for the NEAR Hackathon, November 1–14, 2026.
 
 ## License
 
-MIT. See [`LICENSE`](LICENSE).
-
-
-## Connected ESP32 demo
-
-The ESP32 firmware can poll the API for a pending challenge and submit a physical-input event over Wi-Fi. This is a hardware-connected prototype, not cryptographic approval.
-
-1. In the deployment environment, set `TAPLOCK_DEVICE_TOKEN` to a long random secret.
-2. Copy `firmware/include/secrets.example.h` to `firmware/include/secrets.h` (the latter is ignored by Git).
-3. Set your Wi-Fi SSID/password, `TAPLOCK_API_BASE`, and the same device token.
-4. For local testing, use your computer's LAN IP in `TAPLOCK_API_BASE`, not localhost. Ensure the computer and ESP32 are on the same network.
-5. Open `firmware/` in VS Code with PlatformIO, build and flash, then open Serial Monitor at 115200 baud.
-6. Start the web server and create a challenge in the dashboard. Once the ESP32 reports the pending challenge, connect GPIO27 to GND to send the physical-input event.
-
-The device-token header is a basic shared-secret transport gate, not a device signature. Use HTTPS for remote deployments. Do not expose real funds or credentials.
-
-## NEAR contract
-
-The Rust contract source is in `contract/`. It registers device Ed25519 public keys, verifies signatures on-chain, and records one-time approval receipts. It has not been deployed to testnet or independently audited. Contract signing bytes must match the documented message exactly. The current ESP32 bridge does not yet create Ed25519 signatures or submit contract calls, so the on-chain contract is not connected to the hardware demo yet.
+MIT. See [LICENSE](LICENSE).
