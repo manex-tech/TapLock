@@ -1,6 +1,6 @@
 import http from "node:http";
 import { readFile } from "node:fs/promises";
-import { createHash, randomUUID } from "node:crypto";
+import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -45,6 +45,15 @@ function canonicalDigest(action) {
   return createHash("sha256").update(canonical).digest("hex");
 }
 function findAction(id) { return actions.find(a => a.id === id); }
+function deviceAuthorized(req) {
+  const expected = process.env.TAPLOCK_DEVICE_TOKEN || "";
+  const supplied = req.headers["x-device-token"] || "";
+  if (!expected || typeof supplied !== "string") return false;
+  const a = Buffer.from(expected);
+  const b = Buffer.from(supplied);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
@@ -83,6 +92,7 @@ const server = http.createServer(async (req, res) => {
     }
   }
   if (req.method === "GET" && url.pathname === "/api/device/next-challenge") {
+    if (!deviceAuthorized(req)) return send(res, 401, { error: "Device authentication failed. Configure TAPLOCK_DEVICE_TOKEN and x-device-token." });
     const deviceId = String(url.searchParams.get("deviceId") || "");
     if (!deviceId) return send(res, 400, { error: "deviceId is required" });
     const challenge = [...challenges.values()].find(c =>
@@ -98,6 +108,7 @@ const server = http.createServer(async (req, res) => {
     }});
   }
   if (req.method === "POST" && url.pathname === "/api/device/input") {
+    if (!deviceAuthorized(req)) return send(res, 401, { error: "Device authentication failed. Configure TAPLOCK_DEVICE_TOKEN and x-device-token." });
     try {
       const input = await bodyJson(req);
       const challenge = challenges.get(String(input.challengeId || ""));
