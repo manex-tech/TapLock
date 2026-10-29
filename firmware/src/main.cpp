@@ -30,6 +30,7 @@ void pollChallenge() {
   String url = String(TAPLOCK_API_BASE) + "/api/device/next-challenge?deviceId=" + DEVICE_ID;
   http.setTimeout(HTTP_TIMEOUT_MS);
   if (!http.begin(url)) return;
+  http.addHeader("x-device-token", TAPLOCK_DEVICE_TOKEN);
   const int code = http.GET();
   if (code == HTTP_CODE_OK) {
     JsonDocument doc;
@@ -65,6 +66,7 @@ void submitPhysicalInput() {
   http.setTimeout(HTTP_TIMEOUT_MS);
   if (!http.begin(url)) return;
   http.addHeader("Content-Type", "application/json");
+  http.addHeader("x-device-token", TAPLOCK_DEVICE_TOKEN);
   JsonDocument body;
   body["challengeId"] = activeChallengeId;
   body["deviceId"] = DEVICE_ID;
