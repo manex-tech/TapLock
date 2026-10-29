@@ -24,6 +24,7 @@ pub struct Receipt {
 #[derive(BorshSerialize, BorshDeserialize, PanicOnDefault)]
 pub struct TapLock {
     owner: AccountId,
+    network_id: String,
     devices: LookupMap<String, Vec<u8>>,
     receipts: UnorderedMap<String, Receipt>,
     used_nonces: UnorderedSet<String>,
@@ -32,9 +33,10 @@ pub struct TapLock {
 #[near_bindgen]
 impl TapLock {
     #[init]
-    pub fn new(owner: AccountId) -> Self {
+    pub fn new(owner: AccountId, network_id: String) -> Self {
         Self {
             owner,
+            network_id,
             devices: LookupMap::new(StorageKey::Devices),
             receipts: UnorderedMap::new(StorageKey::Receipts),
             used_nonces: UnorderedSet::new(StorageKey::Nonces),
@@ -71,7 +73,7 @@ impl TapLock {
         assert_eq!(action_digest.len(), 64, "action digest must be 32-byte hex");
         assert_eq!(signature.len(), 64, "Ed25519 signature must be 64 bytes");
         let expected = format!("taplock:v1|{}|{}|{}|{}|{}|{}",
-            challenge_id, action_digest, nonce, expires_at_ms, device_id, env::chain_id());
+            challenge_id, action_digest, nonce, expires_at_ms, device_id, self.network_id);
         assert_eq!(message, expected, "signed message does not match approval fields");
 
         let public_key = self.devices.get(&device_id).expect("device not registered");
@@ -99,6 +101,8 @@ impl TapLock {
 
     pub fn get_owner(&self) -> AccountId { self.owner.clone() }
 
+    pub fn get_network_id(&self) -> String { self.network_id.clone() }
+
     fn assert_owner(&self) {
         assert_eq!(env::predecessor_account_id(), self.owner, "owner only");
     }
@@ -116,7 +120,7 @@ mod tests {
     fn owner_initializes_contract() {
         let context = VMContextBuilder::new().predecessor_account_id(account("owner.testnet")).build();
         testing_env!(context);
-        let contract = TapLock::new(account("owner.testnet"));
+        let contract = TapLock::new(account("owner.testnet"), "testnet".to_string());
         assert_eq!(contract.get_owner(), account("owner.testnet"));
     }
 }
