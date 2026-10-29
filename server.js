@@ -128,7 +128,6 @@ const server = http.createServer(async (req, res) => {
         return send(res, 409, { error: "Replay detected" });
       }
       consumedNonces.add(challenge.nonce);
-      consumedNonces.add(challenge.nonce);
       challenge.status = "INPUT_RECEIVED";
       record("PHYSICAL_INPUT", "Physical input received; signature verification is not implemented", {
         challengeId: challenge.id, actionId: challenge.actionId, deviceId: challenge.deviceId
@@ -147,10 +146,6 @@ const server = http.createServer(async (req, res) => {
       const input = await bodyJson(req);
       const challenge = challenges.get(String(input.challengeId || ""));
       if (!challenge) return send(res, 404, { error: "Unknown challenge" });
-      if (String(input.deviceId || "") !== challenge.deviceId) {
-        record("REJECT", "Device ID did not match challenge", { challengeId: challenge.id });
-        return send(res, 403, { error: "Device ID does not match challenge" });
-      }
       if (challenge.status !== "PENDING") return send(res, 409, { error: "Challenge is not pending" });
       if (Date.now() > challenge.expiresAt) {
         challenge.status = "EXPIRED";
