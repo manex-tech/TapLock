@@ -1,0 +1,26 @@
+/* TapLock NEAR-inspired premium theme overrides. No official NEAR affiliation is implied. */
+:root{--bg:#070b09;--panel:#0e1511;--panel2:#121d16;--line:#25352b;--muted:#8b9a90;--text:#f2f7f3;--cyan:#00ec97;--purple:#00ec97}
+body{background:radial-gradient(ellipse at 80% 0%,#09241630,transparent 36%),var(--bg);font-family:Manrope,system-ui,sans-serif}
+.sidebar{background:#090e0b;border-color:#1b2920}
+.brand-mark{background:#00ec97;color:#061d12;border-radius:11px;box-shadow:0 0 25px #00ec971c}
+.nav.active{color:#00ec97;background:#0e2418;border:1px solid #1c422d}
+.status-dot{background:#00ec97;box-shadow:0 0 12px #00ec9766}
+.eyebrow.light{color:#b4ffda}
+.hero{border-color:#244332;background:radial-gradient(ellipse at 87% 30%,#0a552e50,transparent 35%),linear-gradient(115deg,#111c14,#0a120d 68%,#102016)}
+.hero:before{content:"";position:absolute;inset:0;opacity:.13;background-image:linear-gradient(#a0ffbf16 1px,transparent 1px),linear-gradient(90deg,#a0ffbf16 1px,transparent 1px);background-size:32px 32px}
+.hero h2{letter-spacing:-1.8px}
+.hero-tags span,.pill{border-color:#344d3b;color:#c3d4c8}
+.stat,.panel{background:#0e1511;border-color:#25352b}
+.stat strong{letter-spacing:-1.2px}
+.pill{color:#00ec97;border-color:#28563b;background:#00ec970a}
+.action{background:#0a110d;border-color:#223127;border-radius:8px;transition:border-color .18s}
+.action:hover{border-color:#3c6047}
+.risk{background:#142b1c;color:#94f5b9;border:1px solid #294a34}
+.risk.high{background:#321b20;color:#ff7f87;border-color:#5c3038}
+.btn{border-color:#344a39;background:#142018;border-radius:6px}
+.btn.primary{background:#00ec97;color:#062116;border-color:#00ec97}
+.btn.primary:hover{background:#69ffbd}
+.event-type{color:#00ec97}
+.toast{border-color:#31513c;background:#101c14}
+.button.secondary:hover{border-color:#00ec97;color:#00ec97}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
