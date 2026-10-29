@@ -31,3 +31,11 @@ For a bench test, GPIO27 can be pulled to GND. The input is active-low and uses 
 - Use test data only.
 - Do not represent physical input as a verified signature.
 - Do not claim transaction execution or blockchain integration until implemented and tested.
+
+## Configure ESP32 API authentication
+
+Before using the Wi-Fi firmware, set `TAPLOCK_DEVICE_TOKEN` in the server's environment to a long random secret. Configure the same value in your local ignored `firmware/include/secrets.h`. The example header is a template only.
+
+For Render, add `TAPLOCK_DEVICE_TOKEN` under the service's Environment settings, then redeploy. For remote device communication, use the HTTPS Render URL in `TAPLOCK_API_BASE`. For local testing, use your computer's LAN IP and keep the computer and ESP32 on the same Wi-Fi network.
+
+The shared token is only a basic prototype transport gate. It is not a cryptographic device identity or a substitute for signed approvals.
