@@ -6,9 +6,9 @@ This contract is the on-chain verification component of the TapLock prototype. I
 
 The device signs the exact UTF-8 bytes:
 
-    taplock:v1|<challenge_id>|<action_digest>|<nonce>|<expires_at_ms>|<device_id>|<chain_id>
+    taplock:v1|<challenge_id>|<action_digest>|<nonce>|<expires_at_ms>|<device_id>|<network_id>
 
-The action digest is a 64-character SHA-256 hex digest over a canonical action representation. The signing implementation must use exactly the same field ordering and bytes as the contract.
+The action digest is a 64-character SHA-256 hex digest over a canonical action representation. The signing implementation must use exactly the same field ordering and bytes as the contract. The network domain is supplied during initialization (for example, `testnet`) and is included to prevent cross-environment message reuse.
 
 ## Build and test
 
@@ -21,7 +21,7 @@ If your cargo-near version doesn't accept --manifest-path, run the commands from
 
 ## Deploy to testnet
 
-Create/use a dedicated NEAR testnet account, then deploy the generated WASM using the current NEAR CLI or cargo-near workflow. Initialize with your owner account ID. Register the device's 32-byte Ed25519 public key. Keep owner credentials off the web server and out of Git.
+Create/use a dedicated NEAR testnet account, then deploy the generated WASM using the current NEAR CLI or cargo-near workflow. Initialize with your owner account ID and the explicit network domain string (for example, `testnet`). Register the device's 32-byte Ed25519 public key. Keep owner credentials off the web server and out of Git.
 
 ## Security boundaries
 
