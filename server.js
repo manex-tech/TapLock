@@ -146,7 +146,7 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === "GET" || req.method === "HEAD") {
     const requested = url.pathname === "/" ? "index.html" : decodeURIComponent(url.pathname.slice(1));
-    const normalized = normalize(requested).replace(/^(..(\/|\\|$))+/, "");
+    const normalized = normalize(requested).replace(/^(\.\.(\/|\\|$))+/, "");
     const filePath = join(HERE, "public", normalized);
     try {
       const data = await readFile(filePath);
