@@ -128,6 +128,7 @@ const server = http.createServer(async (req, res) => {
         return send(res, 409, { error: "Replay detected" });
       }
       consumedNonces.add(challenge.nonce);
+      consumedNonces.add(challenge.nonce);
       challenge.status = "INPUT_RECEIVED";
       record("PHYSICAL_INPUT", "Physical input received; signature verification is not implemented", {
         challengeId: challenge.id, actionId: challenge.actionId, deviceId: challenge.deviceId
