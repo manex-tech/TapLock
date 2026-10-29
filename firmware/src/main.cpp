@@ -7,8 +7,10 @@
 // Never commit secrets.h. Use a LAN-reachable API URL during local testing.
 #include "secrets.h"
 
+// Most ESP32 DevKit boards route the onboard BOOT button to GPIO0.
+// Press only after the board has booted; holding BOOT during reset can enter download mode.
 #ifndef TAPLOCK_INPUT_PIN
-#define TAPLOCK_INPUT_PIN 27
+#define TAPLOCK_INPUT_PIN 0
 #endif
 
 constexpr uint32_t DEBOUNCE_MS = 45;
@@ -45,13 +47,15 @@ void pollChallenge() {
         Serial.println("=== TAPLOCK CHALLENGE AVAILABLE ===");
         Serial.printf("Challenge: %s\n", activeChallengeId.c_str());
         Serial.printf("Action: %s\n", activeActionTitle.c_str());
-        Serial.println("Inspect the action in the dashboard before testing.");
-        Serial.println("Connect GPIO27 to GND to record a physical-input event.");
-        Serial.println("Prototype only: no signature or NEAR transaction is produced.");
+        Serial.println("Review the full action in the dashboard before confirming.");
+        Serial.println("Press the onboard BOOT button briefly to record a physical input.");
+        Serial.println("Prototype only: this input is not a cryptographic signature or NEAR transaction.");
       }
     }
   } else if (code < 0) {
     Serial.printf("Challenge poll failed: %s\n", HTTPClient::errorToString(code).c_str());
+  } else if (code == HTTP_CODE_UNAUTHORIZED) {
+    Serial.println("API rejected device token. Check TAPLOCK_DEVICE_TOKEN on server and in secrets.h.");
   }
   http.end();
 }
@@ -87,9 +91,9 @@ void setup() {
   pinMode(TAPLOCK_INPUT_PIN, INPUT_PULLUP);
   delay(150);
   Serial.println();
-  Serial.println("TapLock ESP32 Wi-Fi input bridge");
-  Serial.printf("Input GPIO%d, active-low. Connect GPIO%d to GND for bench test.\n",
-                TAPLOCK_INPUT_PIN, TAPLOCK_INPUT_PIN);
+  Serial.println("TapLock ESP32 hardware-key prototype");
+  Serial.printf("Confirmation input GPIO%d (onboard BOOT button on many ESP32 DevKit boards).\n", TAPLOCK_INPUT_PIN);
+  Serial.println("Press BOOT only after startup; do not hold it while resetting or powering on.");
   Serial.println("Connecting to Wi-Fi...");
   WiFi.mode(WIFI_STA);
   WiFi.begin(TAPLOCK_WIFI_SSID, TAPLOCK_WIFI_PASSWORD);
@@ -105,7 +109,7 @@ void setup() {
   } else {
     Serial.println("Wi-Fi connection timed out. Check secrets.h and reboot.");
   }
-  Serial.println("IMPORTANT: This bridge reports an input event, not cryptographic authorization.");
+  Serial.println("Security boundary: this firmware records a physical input; signed device authorization is not implemented yet.");
 }
 
 void loop() {
@@ -118,7 +122,7 @@ void loop() {
   if ((now - lastChangeAt) >= DEBOUNCE_MS && raw != stableState) {
     stableState = raw;
     if (stableState == LOW) {
-      Serial.println("Physical input detected.");
+      Serial.println("Onboard button press detected.");
       submitPhysicalInput();
     }
   }
