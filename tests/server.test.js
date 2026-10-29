@@ -23,8 +23,8 @@ test("health and challenge lifecycle", async (t) => {
   assert.equal(created.status, 201);
   const challenge = await created.json();
   assert.equal(challenge.status, "PENDING");
-  const input = await fetch(`${base}/api/device/input`, { method: "POST", headers: {"content-type":"application/json", "x-device-token":"test-device-token"}, body: JSON.stringify({challengeId:challenge.id}) });
+  const input = await fetch(`${base}/api/device/input`, { method: "POST", headers: {"content-type":"application/json", "x-device-token":"test-device-token"}, body: JSON.stringify({challengeId:challenge.id, deviceId:"taplock-devkit-01"}) });
   assert.equal(input.status, 202);
-  const replay = await fetch(`${base}/api/device/input`, { method: "POST", headers: {"content-type":"application/json", "x-device-token":"test-device-token"}, body: JSON.stringify({challengeId:challenge.id}) });
+  const replay = await fetch(`${base}/api/device/input`, { method: "POST", headers: {"content-type":"application/json", "x-device-token":"test-device-token"}, body: JSON.stringify({challengeId:challenge.id, deviceId:"taplock-devkit-01"}) });
   assert.equal(replay.status, 409);
 });
