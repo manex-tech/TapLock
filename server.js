@@ -82,6 +82,21 @@ const server = http.createServer(async (req, res) => {
       return send(res, 400, { error: "Invalid request", message: e.message });
     }
   }
+  if (req.method === "GET" && url.pathname === "/api/device/next-challenge") {
+    const deviceId = String(url.searchParams.get("deviceId") || "");
+    if (!deviceId) return send(res, 400, { error: "deviceId is required" });
+    const challenge = [...challenges.values()].find(c =>
+      c.deviceId === deviceId && c.status === "PENDING" && Date.now() <= c.expiresAt
+    );
+    if (!challenge) return send(res, 200, { challenge: null });
+    const action = findAction(challenge.actionId);
+    return send(res, 200, { challenge: {
+      id: challenge.id, nonce: challenge.nonce, actionId: challenge.actionId,
+      actionDigest: challenge.actionDigest, deviceId: challenge.deviceId,
+      expiresAt: new Date(challenge.expiresAt).toISOString(),
+      action: action ? { title: action.title, recipient: action.recipient, amount: action.amount, asset: action.asset, risk: action.risk } : null
+    }});
+  }
   if (req.method === "POST" && url.pathname === "/api/device/input") {
     try {
       const input = await bodyJson(req);
